@@ -44,7 +44,7 @@ class TaskDueCommand extends Command
         $start = Str::substr(now()->toDateTimeString(), 0, -3);
         $end = $start . ':59';
         $tasks = Task::query()->whereBetween('due_at', [$start, $end])->get();
-        $tasks = Task::inRandomOrder()->limit(1)->get();
+        // $tasks = Task::inRandomOrder()->limit(1)->get();
         
         // dd($tasks->toArray());
         
