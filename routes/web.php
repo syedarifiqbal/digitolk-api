@@ -18,6 +18,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 Route::get('/cron', function () {
-    Artisan::call('task:run');
+    Artisan::call('task:due');
     return 'done';
 });
