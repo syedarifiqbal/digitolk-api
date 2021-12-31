@@ -53,8 +53,7 @@ class LocationsController extends Controller
      */
     public function update(Request $request, Locations $locations)
     {
-        Log::info($locations->toArray());
-        // $locations->fill($request->only($locations->getFillable()))->save();
+        $locations->fill($request->only($locations->getFillable()))->save();
         return response(['message' => "Location has been updated successfully!."]);
     }
 
@@ -66,7 +65,7 @@ class LocationsController extends Controller
      */
     public function destroy(Locations $locations)
     {
-        // $locations->delete();
+        $locations->delete();
 
         return response(['message' => 'Location has been delete.!']);
     }
