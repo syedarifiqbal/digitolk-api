@@ -18,6 +18,11 @@ class LoginController extends Controller
             return $this->errorResponse('Invalid Credentials', false, Response::HTTP_UNAUTHORIZED);
         }
 
+        if(request('device_id')){
+            $user->device_id = request('device_id');
+            $user->save();
+        }
+
         $token = $user->createToken('User Password')->accessToken;
     
         $response = ['token' => $token, 'user' => $user];

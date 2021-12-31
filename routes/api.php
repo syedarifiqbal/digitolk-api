@@ -30,6 +30,11 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::resource('locations', LocationsController::class);
 
     Route::get('/user', function (Request $request) {
+        $deviceId = $request()->user()->device_id;
+
+        if(!$deviceId && $request->device_id){
+            $request->user()->update(['device_id' => $request->device_id]);
+        }
         return $request->user();
     });
 
