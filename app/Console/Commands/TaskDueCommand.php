@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Core\Notifications\PushNotifications;
 use App\Models\Task;
 use App\Events\TaskDue;
 use Illuminate\Support\Str;
@@ -17,6 +18,8 @@ class TaskDueCommand extends Command
      */
     protected $signature = 'task:due';
 
+    protected $pushNotifications;
+
     /**
      * The console command description.
      *
@@ -29,9 +32,11 @@ class TaskDueCommand extends Command
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(PushNotifications $pushNotifications)
     {
         parent::__construct();
+
+        $this->pushNotifications = $pushNotifications;
     }
 
     /**
@@ -43,15 +48,19 @@ class TaskDueCommand extends Command
     {
         $start = Str::substr(now()->toDateTimeString(), 0, -3);
         $end = $start . ':59';
-        $tasks = Task::query()->whereBetween('due_at', [$start, $end])->get();
-        // $tasks = Task::inRandomOrder()->limit(1)->get();
-        
-        // dd($tasks->toArray());
-        
-        $tasks->each(function($task){
+        $tasks = Task::query()->with('owner:id,device_id')->whereBetween('due_at', [$start, $end])->get();
+        // $tasks = Task::with('owner:id,device_id')->inRandomOrder()->limit(1)->get();
+
+        $tasks->each(function ($task) {
+            if ($task->owner->device_id) {
+                $this
+                    ->pushNotifications
+                    ->addDevice($task->owner->device_id, 'ANDROID')
+                    ->send("Digitolk - Task (" . $task->summary . ")", $task->description);
+            }
             event(new TaskDue($task));
         });
-        
+
         return 0;
     }
 }
